@@ -20,7 +20,7 @@ if not BOT_TOKEN:
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-CHANNEL_ID = os.getenv("CHANNEL_ID", "@markizstats")
+CHANNEL_ID = os.getenv("CHANNEL_ID", "@chesstourname")
 CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")
 TEAM_URL = "https://lichess.org/team/ilAYFF9R"
 

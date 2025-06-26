@@ -20,9 +20,9 @@ if not BOT_TOKEN:
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-CHANNEL_ID = os.getenv("CHANNEL_ID", "@chesstourname")  # ID канала
-CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")  # URL канала
-TEAM_URL = "https://lichess.org/team/ilAYFF9R"  # URL команды Lichess
+CHANNEL_ID = os.getenv("CHANNEL_ID", "1613317747")
+CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")
+TEAM_URL = "https://lichess.org/team/ilAYFF9R"
 
 TOURNAMENTS = {
     "stage_1": {
@@ -183,7 +183,7 @@ async def back_to_stages_handler(callback: types.CallbackQuery):
 @dp.message(Command("help"))
 async def help_command(message: types.Message):
     help_text = (
-        "🤖 **Команды бота CCL Tournament:**\n\n"
+        "🤖 **Команды бота CCL Tournament:**\n"
         "/start - Начать работу с ботом\n"
         "/tourname - Участие в турнире\n"
         "/help - Показать эту справку\n\n"

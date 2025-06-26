@@ -23,8 +23,8 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 # Настройки канала (замените на ваши значения)
-CHANNEL_ID = os.getenv("CHANNEL_ID", "@your_channel")  # ID канала
-CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/your_channel")  # URL канала
+CHANNEL_ID = os.getenv("CHANNEL_ID", "1613317747")  # ID канала
+CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")  # URL канала
 TEAM_URL = "https://lichess.org/team/ilAYFF9R"  # URL команды Lichess
 
 # Информация о турнирах

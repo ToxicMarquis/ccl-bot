@@ -28,17 +28,20 @@ TOURNAMENTS = {
     "stage_1": {
         "name": "1-й этап",
         "date": "28.06.2025",
-        "description": "28.06.2025 пройдёт 1-й этап онлайн-турнир CCL."
+        "description": "28.06.2025 пройдёт 1-й этап онлайн-турнир CCL.",
+        "stage_url": "https://lichess.org/tournament/JTR3p99u"
     },
     "stage_2": {
         "name": "2-й этап", 
         "date": "05.07.2025",
-        "description": "05.07.2025 пройдёт 2-й этап онлайн-турнир CCL."
+        "description": "05.07.2025 пройдёт 2-й этап онлайн-турнир CCL.",
+        "stage_url": "https://lichess.org/tournament/j46dTG8F"
     },
     "stage_3": {
         "name": "3-й этап",
         "date": "12.07.2025", 
-        "description": "12.07.2025 пройдёт 3-й этап онлайн-турнир CCL."
+        "description": "12.07.2025 пройдёт 3-й этап онлайн-турнир CCL.",
+        "stage_url": "https://lichess.org/tournament/Y7HE5KFl"
     }
 }
 
@@ -54,13 +57,8 @@ def create_stages_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="🏆 1 этап", callback_data="stage_1"),
-            InlineKeyboardButton(text="🏆 2 этап", callback_data="stage_2")
-        ],
-        [
+            InlineKeyboardButton(text="🏆 2 этап", callback_data="stage_2"),
             InlineKeyboardButton(text="🏆 3 этап", callback_data="stage_3")
-        ],
-        [
-            InlineKeyboardButton(text="🔄 Обновить", callback_data="refresh_stages")
         ]
     ])
     return keyboard
@@ -118,20 +116,6 @@ async def check_subscription_handler(callback: types.CallbackQuery):
         )
 
     await callback.answer()
-    
-@dp.callback_query(F.data == "refresh_stages")
-async def refresh_stages_handler(callback: types.CallbackQuery):
-    user_id = callback.from_user.id
-
-    if await check_subscription(user_id):
-        await callback.message.edit_reply_markup(reply_markup=create_stages_keyboard())
-        await callback.answer("✅ Список этапов обновлён!")
-    else:
-        await callback.message.edit_text(
-            "❌ Пожалуйста, подпишитесь на канал:",
-            reply_markup=create_subscription_keyboard()
-        )
-        await callback.answer("❌ Подписка не найдена!", show_alert=True)
 
 @dp.callback_query(F.data.startswith("stage_"))
 async def stage_handler(callback: types.CallbackQuery):
@@ -151,14 +135,14 @@ async def stage_handler(callback: types.CallbackQuery):
         return
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🎯 Участвовать в этапе", url=TEAM_URL)],
+        [InlineKeyboardButton(text="🎯 Участвовать в этапе", url=tournament["stage_url"])],
         [InlineKeyboardButton(text="⬅️ Назад к этапам", callback_data="back_to_stages")]
     ])
 
     message_text = (
-        f"🏆 {tournament['name']} онлайн-турнир CCL\n\n"
-        f"📅 Дата: {tournament['date']}\n\n"
-        f"📝 {tournament['description']}\n\n"
+        f"🏆 {tournament['name']} онлайн-турнир CCL\n"
+        f"📅 Дата: {tournament['date']}\n"
+        f"📝 {tournament['description']}\n"
         f"Чтобы принять участие необходимо быть участником нашей "
         f"[команды на Lichess]({TEAM_URL})."
     )
@@ -174,7 +158,7 @@ async def stage_handler(callback: types.CallbackQuery):
 @dp.callback_query(F.data == "back_to_stages")
 async def back_to_stages_handler(callback: types.CallbackQuery):
     await callback.message.edit_text(
-        "🏆 Выберите этап турнира CCL:\n\n"
+        "🏆 Выберите этап турнира CCL:\n"
         "Все этапы проходят онлайн на платформе Lichess.",
         reply_markup=create_stages_keyboard()
     )

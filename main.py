@@ -27,20 +27,20 @@ TEAM_URL = "https://lichess.org/team/ilAYFF9R"
 TOURNAMENTS = {
     "stage_1": {
         "name": "1-й этап",
-        "date": "28.06.2025",
-        "description": "28.06.2025 пройдёт 1-й этап онлайн-турнир CCL.",
+        "date": "28.06.2025 12:00 по Мск",
+        "description": "**1-й этап онлайн-турнир CCL**\nРежим: [King of the Hill](https://lichess.org/variant/kingOfTheHill)\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/JTR3p99u"
     },
     "stage_2": {
         "name": "2-й этап", 
-        "date": "05.07.2025",
-        "description": "05.07.2025 пройдёт 2-й этап онлайн-турнир CCL.",
+        "date": "05.07.2025 12:00 по Мск",
+        "description": "**2-й этап онлайн-турнир CCL**\nРежим: [Horde](https://lichess.org/variant/Horde)\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/j46dTG8F"
     },
     "stage_3": {
         "name": "3-й этап",
-        "date": "12.07.2025", 
-        "description": "12.07.2025 пройдёт 3-й этап онлайн-турнир CCL.",
+        "date": "12.07.2025 12:00 по Мск", 
+        "description": "**3-й этап онлайн-турнир CCL**\nРежим: [Three Check](https://lichess.org/variant/ThreeCheck)\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/Y7HE5KFl"
     }
 }

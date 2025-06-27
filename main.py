@@ -28,20 +28,23 @@ TOURNAMENTS = {
     "stage_1": {
         "name": "1-й этап",
         "date": "28.06.2025 12:00 по Мск",
-        "description": "**1-й этап онлайн-турнир CCL**\nРежим: [King of the Hill](https://lichess.org/variant/kingOfTheHill)\nДлительность: 90 минут\nКонтроль: 5+0",
-        "stage_url": "https://lichess.org/tournament/JTR3p99u"
+        "description": "Режим: [King of the Hill](https://lichess.org/variant/kingOfTheHill)\nДлительность: 90 минут\nКонтроль: 5+0",
+        "stage_url": "https://lichess.org/tournament/JTR3p99u",
+        "img_url": "https://imgur.com/MGfpe8j.png"
     },
     "stage_2": {
         "name": "2-й этап", 
         "date": "05.07.2025 12:00 по Мск",
-        "description": "**2-й этап онлайн-турнир CCL**\nРежим: [Horde](https://lichess.org/variant/Horde)\nДлительность: 90 минут\nКонтроль: 5+0",
-        "stage_url": "https://lichess.org/tournament/j46dTG8F"
+        "description": "Режим: [Horde](https://lichess.org/variant/Horde)\nДлительность: 90 минут\nКонтроль: 5+0",
+        "stage_url": "https://lichess.org/tournament/j46dTG8F",
+        "img_url": "https://imgur.com/amplxVA.png"
     },
     "stage_3": {
         "name": "3-й этап",
         "date": "12.07.2025 12:00 по Мск", 
-        "description": "**3-й этап онлайн-турнир CCL**\nРежим: [Three Check](https://lichess.org/variant/ThreeCheck)\nДлительность: 90 минут\nКонтроль: 5+0",
-        "stage_url": "https://lichess.org/tournament/Y7HE5KFl"
+        "description": "Режим: [Three Check](https://lichess.org/variant/ThreeCheck)\nДлительность: 90 минут\nКонтроль: 5+0",
+        "stage_url": "https://lichess.org/tournament/Y7HE5KFl",
+        "img_url": "https://imgur.com/H9MOTx7.png"
     }
 }
 
@@ -139,18 +142,15 @@ async def stage_handler(callback: types.CallbackQuery):
         [InlineKeyboardButton(text="⬅️ Назад к этапам", callback_data="back_to_stages")]
     ])
 
-    message_text = (
-        f"🏆 {tournament['name']} онлайн-турнир CCL\n"
-        f"📅 Дата: {tournament['date']}\n"
-        f"📝 {tournament['description']}\n"
-        f"Чтобы принять участие необходимо быть участником нашей "
-        f"[команды на Lichess]({TEAM_URL})."
+    message_text = types.InputMediaPhoto(
+        text=f"🏆 <b>{tournament['name']} онлайн-турнира CCL</b>\n📅 Дата: {tournament['date']}\n📝 {tournament['description']}\nЧтобы принять участие необходимо быть участником нашей [команды на Lichess]({TEAM_URL}).",
+        image=tournament["img_url"],
+        parse_mode="HTML"
     )
 
     await callback.message.edit_text(
         message_text,
         reply_markup=keyboard,
-        parse_mode="Markdown",
         disable_web_page_preview=True
     )
     await callback.answer()
@@ -167,18 +167,18 @@ async def back_to_stages_handler(callback: types.CallbackQuery):
 @dp.message(Command("help"))
 async def help_command(message: types.Message):
     help_text = (
-        "🤖 **Команды бота CCL Tournament:**\n"
+        "🤖 <b>Команды бота CCL Tournament:</b>\n"
         "/start - Начать работу с ботом\n"
         "/tourname - Участие в турнире\n"
         "/help - Показать эту справку\n\n"
-        "📋 **Как участвовать:**\n"
+        "📋 <b>Как участвовать:</b>\n"
         "1. Подпишитесь на наш канал\n"
         "2. Используйте команду /tourname\n"
         "3. Выберите этап турнира\n"
         "4. Вступите в команду на Lichess\n\n"
         "❓ При возникновении проблем обратитесь к администраторам канала."
     )
-    await message.answer(help_text, parse_mode="Markdown")
+    await message.answer(help_text, parse_mode="HTML")
 
 async def main():
     try:

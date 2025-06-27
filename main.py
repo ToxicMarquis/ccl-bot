@@ -1,10 +1,9 @@
-
 import os
 import asyncio
 import logging
 from datetime import datetime
 from aiogram import Bot, Dispatcher, F, types
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, URLInputFile, InputMediaPhoto
 from aiogram.filters import Command
 
 logging.basicConfig(
@@ -28,23 +27,23 @@ TOURNAMENTS = {
     "stage_1": {
         "name": "1-й этап",
         "date": "28.06.2025 12:00 по Мск",
-        "description": "Режим: [King of the Hill](https://lichess.org/variant/kingOfTheHill)\nДлительность: 90 минут\nКонтроль: 5+0",
+        "description": "Режим: <a href='https://lichess.org/variant/kingOfTheHill'>King of the Hill</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/JTR3p99u",
-        "img_url": "https://imgur.com/MGfpe8j.png"
+        "img_url": "https://i.imgur.com/MGfpe8j.png"
     },
     "stage_2": {
         "name": "2-й этап", 
         "date": "05.07.2025 12:00 по Мск",
-        "description": "Режим: [Horde](https://lichess.org/variant/Horde)\nДлительность: 90 минут\nКонтроль: 5+0",
+        "description": "Режим: <a href='https://lichess.org/variant/Horde'>Horde</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/j46dTG8F",
-        "img_url": "https://imgur.com/amplxVA.png"
+        "img_url": "https://i.imgur.com/amplxVA.png"
     },
     "stage_3": {
         "name": "3-й этап",
         "date": "12.07.2025 12:00 по Мск", 
-        "description": "Режим: [Three Check](https://lichess.org/variant/ThreeCheck)\nДлительность: 90 минут\nКонтроль: 5+0",
+        "description": "Режим: <a href='https://lichess.org/variant/ThreeCheck'>Three Check</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/Y7HE5KFl",
-        "img_url": "https://imgur.com/H9MOTx7.png"
+        "img_url": "https://i.imgur.com/H9MOTx7.png"
     }
 }
 
@@ -76,11 +75,11 @@ def create_subscription_keyboard() -> InlineKeyboardMarkup:
 @dp.message(Command("start"))
 async def start_command(message: types.Message):
     welcome_text = (
-        "🏆 Добро пожаловать в бот турниров CCL!\n"
+        "🏆 <b>Добро пожаловать в бот турниров CCL!</b>\n"
         "Используйте команду /tourname для участия в турнире.\n"
         "Для участия необходимо быть подписанным на наш канал."
     )
-    await message.answer(welcome_text)
+    await message.answer(welcome_text, parse_mode="HTML")
 
 @dp.message(Command("tourname"))
 async def tourname_command(message: types.Message):
@@ -91,15 +90,17 @@ async def tourname_command(message: types.Message):
 
     if await check_subscription(user_id):
         await message.answer(
-            "🏆 Выберите этап турнира CCL:\n"
+            "🏆 <b>Выберите этап турнира CCL:</b>\n"
             "Все этапы проходят онлайн на платформе Lichess.",
-            reply_markup=create_stages_keyboard()
+            reply_markup=create_stages_keyboard(),
+            parse_mode="HTML"
         )
     else:
         await message.answer(
-            "❌ Пожалуйста, подпишитесь на канал:\n"
+            "❌ <b>Пожалуйста, подпишитесь на канал:</b>\n"
             "Для участия в турнире необходимо быть подписанным на наш официальный канал.",
-            reply_markup=create_subscription_keyboard()
+            reply_markup=create_subscription_keyboard(),
+            parse_mode="HTML"
         )
 
 @dp.callback_query(F.data == "check_subscription")
@@ -108,9 +109,10 @@ async def check_subscription_handler(callback: types.CallbackQuery):
 
     if await check_subscription(user_id):
         await callback.message.edit_text(
-            "🏆 Выберите этап турнира CCL:\n"
+            "🏆 <b>Выберите этап турнира CCL:</b>\n"
             "Все этапы проходят онлайн на платформе Lichess.",
-            reply_markup=create_stages_keyboard()
+            reply_markup=create_stages_keyboard(),
+            parse_mode="HTML"
         )
     else:
         await callback.answer(
@@ -126,8 +128,9 @@ async def stage_handler(callback: types.CallbackQuery):
 
     if not await check_subscription(callback.from_user.id):
         await callback.message.edit_text(
-            "❌ Пожалуйста, подпишитесь на канал:",
-            reply_markup=create_subscription_keyboard()
+            "❌ <b>Пожалуйста, подпишитесь на канал:</b>",
+            reply_markup=create_subscription_keyboard(),
+            parse_mode="HTML"
         )
         await callback.answer("❌ Необходима подписка на канал!", show_alert=True)
         return
@@ -142,23 +145,44 @@ async def stage_handler(callback: types.CallbackQuery):
         [InlineKeyboardButton(text="⬅️ Назад к этапам", callback_data="back_to_stages")]
     ])
 
-    message_text = f"🏆 <b>{tournament['name']} онлайн-турнира CCL</b>\n📅 Дата: {tournament['date']}\n📝 {tournament['description']}\nЧтобы принять участие необходимо быть участником нашей [команды на Lichess]({TEAM_URL})."
-
-    await callback.message.edit_text(
-        message_text,
-        reply_markup=keyboard,
-        disable_web_page_preview=True,
-        image=tournament["img_url"],
-        parse_mode="HTML"
+    message_text = (
+        f"🏆 <b>{tournament['name']} онлайн-турнира CCL</b>\n"
+        f"📅 <b>Дата:</b> {tournament['date']}\n"
+        f"📝 <b>Детали:</b>\n{tournament['description']}\n\n"
+        f"Чтобы принять участие необходимо быть участником нашей "
+        f"<a href='{TEAM_URL}'>команды на Lichess</a>."
     )
+
+    try:
+        media = InputMediaPhoto(
+            media=URLInputFile(tournament["img_url"]),
+            caption=message_text,
+            parse_mode="HTML"
+        )
+        
+        await callback.message.edit_media(
+            media=media,
+            reply_markup=keyboard
+        )
+    except Exception as e:
+        logger.error(f"Ошибка отправки изображения: {e}")
+        
+        await callback.message.edit_text(
+            message_text,
+            reply_markup=keyboard,
+            parse_mode="HTML",
+            disable_web_page_preview=True
+        )
+    
     await callback.answer()
 
 @dp.callback_query(F.data == "back_to_stages")
 async def back_to_stages_handler(callback: types.CallbackQuery):
     await callback.message.edit_text(
-        "🏆 Выберите этап турнира CCL:\n"
+        "🏆 <b>Выберите этап турнира CCL:</b>\n"
         "Все этапы проходят онлайн на платформе Lichess.",
-        reply_markup=create_stages_keyboard()
+        reply_markup=create_stages_keyboard(),
+        parse_mode="HTML"
     )
     await callback.answer()
 

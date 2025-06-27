@@ -92,6 +92,7 @@ async def tourname_command(message: types.Message):
         await message.answer(
             "🏆 <b>Выберите этап турнира CCL:</b>\n"
             "Все этапы проходят онлайн на платформе Lichess.",
+            tournament["img_url"],
             reply_markup=create_stages_keyboard(),
             parse_mode="HTML"
         )

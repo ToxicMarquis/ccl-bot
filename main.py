@@ -22,7 +22,7 @@ dp = Dispatcher()
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@chesstourname")
 CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")
 TEAM_URL = "https://lichess.org/team/ilAYFF9R"
-MAIN_URL = "https://i.imgur.com/XZA6rPj.png"  # Главное изображение для меню
+MAIN_URL = "https://i.imgur.com/XZA6rPj.png"
 
 TOURNAMENTS = {
     "stage_1": {
@@ -90,7 +90,7 @@ async def tourname_command(message: types.Message):
     logger.info(f"Пользователь {username} ({user_id}) вызвал команду /tourname")
 
     if await check_subscription(user_id):
-        # Отправляем изображение с подписью и кнопками
+        # Отправляем новое сообщение с изображением
         await message.answer_photo(
             photo=MAIN_URL,
             caption=(
@@ -101,6 +101,7 @@ async def tourname_command(message: types.Message):
             parse_mode="HTML"
         )
     else:
+        # Для неподписанных пользователей достаточно текстового сообщения
         await message.answer(
             "❌ <b>Пожалуйста, подпишитесь на канал:</b>\n"
             "Для участия в турнире необходимо быть подписанным на наш официальный канал.",
@@ -113,7 +114,7 @@ async def check_subscription_handler(callback: types.CallbackQuery):
     user_id = callback.from_user.id
 
     if await check_subscription(user_id):
-        # Удаляем старое сообщение (текстовое)
+        # Удаляем старое сообщение
         await callback.message.delete()
         
         # Отправляем новое сообщение с изображением
@@ -140,7 +141,11 @@ async def stage_handler(callback: types.CallbackQuery):
     user_id = callback.from_user.id
 
     if not await check_subscription(user_id):
-        await callback.message.edit_text(
+        # Удаляем текущее сообщение
+        await callback.message.delete()
+        
+        # Отправляем новое сообщение с предложением подписаться
+        await callback.message.answer(
             "❌ <b>Пожалуйста, подпишитесь на канал:</b>",
             reply_markup=create_subscription_keyboard(),
             parse_mode="HTML"
@@ -166,60 +171,34 @@ async def stage_handler(callback: types.CallbackQuery):
         f"<a href='{TEAM_URL}'>команды на Lichess</a>."
     )
 
-    try:
-        media = InputMediaPhoto(
-            media=URLInputFile(tournament["img_url"]),
-            caption=message_text,
-            parse_mode="HTML"
-        )
-        
-        await callback.message.edit_media(
-            media=media,
-            reply_markup=keyboard
-        )
-    except Exception as e:
-        logger.error(f"Ошибка отправки изображения: {e}")
-        
-        await callback.message.edit_text(
-            message_text,
-            reply_markup=keyboard,
-            parse_mode="HTML",
-            disable_web_page_preview=True
-        )
+    # Удаляем текущее сообщение
+    await callback.message.delete()
+    
+    # Отправляем новое сообщение с изображением этапа
+    await callback.message.answer_photo(
+        photo=tournament["img_url"],
+        caption=message_text,
+        reply_markup=keyboard,
+        parse_mode="HTML"
+    )
     
     await callback.answer()
 
 @dp.callback_query(F.data == "back_to_stages")
 async def back_to_stages_handler(callback: types.CallbackQuery):
-    try:
-        # Создаем медиа-объект с главным изображением
-        media = InputMediaPhoto(
-            media=URLInputFile(MAIN_URL),
-            caption=(
-                "🏆 <b>Выберите этап турнира CCL:</b>\n"
-                "Все этапы проходят онлайн на платформе Lichess."
-            ),
-            parse_mode="HTML"
-        )
-        
-        # Редактируем сообщение, заменяя изображение и текст
-        await callback.message.edit_media(
-            media=media,
-            reply_markup=create_stages_keyboard()
-        )
-    except Exception as e:
-        logger.error(f"Ошибка при возврате к этапам: {e}")
-        # Fallback: если не удалось отредактировать медиа, отправляем новое сообщение
-        await callback.message.answer_photo(
-            photo=MAIN_URL,
-            caption=(
-                "🏆 <b>Выберите этап турнира CCL:</b>\n"
-                "Все этапы проходят онлайн на платформе Lichess."
-            ),
-            reply_markup=create_stages_keyboard(),
-            parse_mode="HTML"
-        )
+    # Удаляем текущее сообщение
+    await callback.message.delete()
     
+    # Отправляем новое сообщение с главным изображением
+    await callback.message.answer_photo(
+        photo=MAIN_URL,
+        caption=(
+            "🏆 <b>Выберите этап турнира CCL:</b>\n"
+            "Все этапы проходят онлайн на платформе Lichess."
+        ),
+        reply_markup=create_stages_keyboard(),
+        parse_mode="HTML"
+    )
     await callback.answer()
 
 @dp.message(Command("help"))

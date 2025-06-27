@@ -22,6 +22,7 @@ dp = Dispatcher()
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@chesstourname")
 CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")
 TEAM_URL = "https://lichess.org/team/ilAYFF9R"
+MAIN_URL = "https://i.imgur.com/XZA6rPj.png"
 
 TOURNAMENTS = {
     "stage_1": {
@@ -92,7 +93,7 @@ async def tourname_command(message: types.Message):
         await message.answer(
             "🏆 <b>Выберите этап турнира CCL:</b>\n"
             "Все этапы проходят онлайн на платформе Lichess.",
-            tournament["img_url"],
+            MAIN_URL,
             reply_markup=create_stages_keyboard(),
             parse_mode="HTML"
         )

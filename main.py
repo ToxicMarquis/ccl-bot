@@ -29,21 +29,21 @@ TOURNAMENTS = {
         "date": "28.06.2025 12:00 по Мск",
         "description": "Режим: <a href='https://lichess.org/variant/kingOfTheHill'>King of the Hill</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/JTR3p99u",
-        "img_url": "https://i.imgur.com/MGfpe8j.png"
+        "img_url": "https://imgur.com/a/dNmFyme#XZA6rPj.png"
     },
     "stage_2": {
         "name": "2-й этап", 
         "date": "05.07.2025 12:00 по Мск",
         "description": "Режим: <a href='https://lichess.org/variant/Horde'>Horde</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/j46dTG8F",
-        "img_url": "https://i.imgur.com/amplxVA.png"
+        "img_url": "https://imgur.com/4cx4z8Z.png"
     },
     "stage_3": {
         "name": "3-й этап",
         "date": "12.07.2025 12:00 по Мск", 
         "description": "Режим: <a href='https://lichess.org/variant/ThreeCheck'>Three Check</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/Y7HE5KFl",
-        "img_url": "https://i.imgur.com/H9MOTx7.png"
+        "img_url": "https://imgur.com/jKR5gxP.png"
     }
 }
 

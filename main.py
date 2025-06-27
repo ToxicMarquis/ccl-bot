@@ -142,16 +142,14 @@ async def stage_handler(callback: types.CallbackQuery):
         [InlineKeyboardButton(text="⬅️ Назад к этапам", callback_data="back_to_stages")]
     ])
 
-    message_text = (
-        text=f"🏆 <b>{tournament['name']} онлайн-турнира CCL</b>\n📅 Дата: {tournament['date']}\n📝 {tournament['description']}\nЧтобы принять участие необходимо быть участником нашей [команды на Lichess]({TEAM_URL}).",
-        image=tournament["img_url"],
-        parse_mode="HTML"
-    )
+    message_text = f"🏆 <b>{tournament['name']} онлайн-турнира CCL</b>\n📅 Дата: {tournament['date']}\n📝 {tournament['description']}\nЧтобы принять участие необходимо быть участником нашей [команды на Lichess]({TEAM_URL})."
 
     await callback.message.edit_text(
         message_text,
         reply_markup=keyboard,
-        disable_web_page_preview=True
+        disable_web_page_preview=True,
+        image=tournament["img_url"],
+        parse_mode="HTML
     )
     await callback.answer()
 

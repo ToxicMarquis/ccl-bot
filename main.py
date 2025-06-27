@@ -149,7 +149,7 @@ async def stage_handler(callback: types.CallbackQuery):
         reply_markup=keyboard,
         disable_web_page_preview=True,
         image=tournament["img_url"],
-        parse_mode="HTML
+        parse_mode="HTML"
     )
     await callback.answer()
 

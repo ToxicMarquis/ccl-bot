@@ -108,7 +108,7 @@ async def check_subscription_handler(callback: types.CallbackQuery):
 
     if await check_subscription(user_id):
         await callback.message.edit_text(
-            "🏆 Выберите этап турнира CCL:\n\n"
+            "🏆 Выберите этап турнира CCL:\n"
             "Все этапы проходят онлайн на платформе Lichess.",
             reply_markup=create_stages_keyboard()
         )
@@ -142,7 +142,7 @@ async def stage_handler(callback: types.CallbackQuery):
         [InlineKeyboardButton(text="⬅️ Назад к этапам", callback_data="back_to_stages")]
     ])
 
-    message_text = types.InputMediaPhoto(
+    message_text = (
         text=f"🏆 <b>{tournament['name']} онлайн-турнира CCL</b>\n📅 Дата: {tournament['date']}\n📝 {tournament['description']}\nЧтобы принять участие необходимо быть участником нашей [команды на Lichess]({TEAM_URL}).",
         image=tournament["img_url"],
         parse_mode="HTML"

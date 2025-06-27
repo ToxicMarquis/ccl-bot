@@ -22,7 +22,7 @@ dp = Dispatcher()
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@chesstourname")
 CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")
 TEAM_URL = "https://lichess.org/team/ilAYFF9R"
-MAIN_URL = "https://i.imgur.com/XZA6rPj.png"
+MAIN_URL = "https://i.imgur.com/h6WQbRi.png"
 
 TOURNAMENTS = {
     "stage_1": {

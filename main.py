@@ -22,7 +22,7 @@ dp = Dispatcher()
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@chesstourname")
 CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")
 TEAM_URL = "https://lichess.org/team/ilAYFF9R"
-MAIN_URL = "https://i.imgur.com/XZA6rPj.png"
+MAIN_URL = "https://i.imgur.com/XZA6rPj.png"  # Главное изображение для меню
 
 TOURNAMENTS = {
     "stage_1": {
@@ -90,10 +90,13 @@ async def tourname_command(message: types.Message):
     logger.info(f"Пользователь {username} ({user_id}) вызвал команду /tourname")
 
     if await check_subscription(user_id):
-        await message.answer(
-            "🏆 <b>Выберите этап турнира CCL:</b>\n"
-            "Все этапы проходят онлайн на платформе Lichess.",
-            MAIN_URL,
+        # Отправляем изображение с подписью и кнопками
+        await message.answer_photo(
+            photo=MAIN_URL,
+            caption=(
+                "🏆 <b>Выберите этап турнира CCL:</b>\n"
+                "Все этапы проходят онлайн на платформе Lichess."
+            ),
             reply_markup=create_stages_keyboard(),
             parse_mode="HTML"
         )
@@ -110,9 +113,16 @@ async def check_subscription_handler(callback: types.CallbackQuery):
     user_id = callback.from_user.id
 
     if await check_subscription(user_id):
-        await callback.message.edit_text(
-            "🏆 <b>Выберите этап турнира CCL:</b>\n"
-            "Все этапы проходят онлайн на платформе Lichess.",
+        # Удаляем старое сообщение (текстовое)
+        await callback.message.delete()
+        
+        # Отправляем новое сообщение с изображением
+        await callback.message.answer_photo(
+            photo=MAIN_URL,
+            caption=(
+                "🏆 <b>Выберите этап турнира CCL:</b>\n"
+                "Все этапы проходят онлайн на платформе Lichess."
+            ),
             reply_markup=create_stages_keyboard(),
             parse_mode="HTML"
         )
@@ -127,8 +137,9 @@ async def check_subscription_handler(callback: types.CallbackQuery):
 @dp.callback_query(F.data.startswith("stage_"))
 async def stage_handler(callback: types.CallbackQuery):
     stage_id = callback.data
+    user_id = callback.from_user.id
 
-    if not await check_subscription(callback.from_user.id):
+    if not await check_subscription(user_id):
         await callback.message.edit_text(
             "❌ <b>Пожалуйста, подпишитесь на канал:</b>",
             reply_markup=create_subscription_keyboard(),
@@ -180,12 +191,35 @@ async def stage_handler(callback: types.CallbackQuery):
 
 @dp.callback_query(F.data == "back_to_stages")
 async def back_to_stages_handler(callback: types.CallbackQuery):
-    await callback.message.edit_text(
-        "🏆 <b>Выберите этап турнира CCL:</b>\n"
-        "Все этапы проходят онлайн на платформе Lichess.",
-        reply_markup=create_stages_keyboard(),
-        parse_mode="HTML"
-    )
+    try:
+        # Создаем медиа-объект с главным изображением
+        media = InputMediaPhoto(
+            media=URLInputFile(MAIN_URL),
+            caption=(
+                "🏆 <b>Выберите этап турнира CCL:</b>\n"
+                "Все этапы проходят онлайн на платформе Lichess."
+            ),
+            parse_mode="HTML"
+        )
+        
+        # Редактируем сообщение, заменяя изображение и текст
+        await callback.message.edit_media(
+            media=media,
+            reply_markup=create_stages_keyboard()
+        )
+    except Exception as e:
+        logger.error(f"Ошибка при возврате к этапам: {e}")
+        # Fallback: если не удалось отредактировать медиа, отправляем новое сообщение
+        await callback.message.answer_photo(
+            photo=MAIN_URL,
+            caption=(
+                "🏆 <b>Выберите этап турнира CCL:</b>\n"
+                "Все этапы проходят онлайн на платформе Lichess."
+            ),
+            reply_markup=create_stages_keyboard(),
+            parse_mode="HTML"
+        )
+    
     await callback.answer()
 
 @dp.message(Command("help"))

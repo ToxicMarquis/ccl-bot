@@ -159,7 +159,7 @@ async def stage_handler(callback: types.CallbackQuery):
         return
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🎯 Участвовать в этапе", url=tournament["stage_url"])],
+        [InlineKeyboardButton(text="🎯 Перейти к этапу", url=tournament["stage_url"])],
         [InlineKeyboardButton(text="⬅️ Назад к этапам", callback_data="back_to_stages")]
     ])
 

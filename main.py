@@ -27,10 +27,10 @@ MAIN_URL = "https://i.imgur.com/h6WQbRi.png"
 TOURNAMENTS = {
     "stage_1": {
         "name": "1-й этап",
-        "date": "28.06.2025 12:00 по Мск",
+        "date": "28.06.2025 12:00 по Мск (завершился)",
         "description": "Режим: <a href='https://lichess.org/variant/kingOfTheHill'>King of the Hill</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/JTR3p99u",
-        "img_url": "https://i.imgur.com/UpeXMb3.png"
+        "img_url": "https://i.imgur.com/1pzxEG1.png"
     },
     "stage_2": {
         "name": "2-й этап", 

@@ -37,14 +37,14 @@ TOURNAMENTS = {
         "date": "05.07.2025 12:00 по Мск",
         "description": "Режим: <a href='https://lichess.org/variant/Horde'>Horde</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/j46dTG8F",
-        "img_url": "https://i.imgur.com/x90JOxK.png"
+        "img_url": "https://i.imgur.com/1l0Geg9.png"
     },
     "stage_3": {
         "name": "3-й этап",
         "date": "12.07.2025 12:00 по Мск", 
         "description": "Режим: <a href='https://lichess.org/variant/ThreeCheck'>Three Check</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/Y7HE5KFl",
-        "img_url": "https://i.imgur.com/wNAwENS.png"
+        "img_url": "https://i.imgur.com/zH4aoF3.png"
     }
 }
 

@@ -60,6 +60,28 @@ TOURNAMENTS = {
     }
 }
 
+@asynccontextmanager
+async def get_db():
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(CREATE_USERS)
+        await db.commit()
+        yield db
+
+async def add_user(uid: int):
+    async with get_db() as db:
+        await db.execute("INSERT OR IGNORE INTO users(user_id) VALUES (?)", (uid,))
+        await db.commit()
+
+async def get_all_user_ids() -> list[int]:
+    async with get_db() as db:
+        rows = await db.execute_fetchall("SELECT user_id FROM users")
+    return [r[0] for r in rows]
+
+async def users_count() -> int:
+    async with get_db() as db:
+        row = await db.execute_fetchone("SELECT COUNT(*) FROM users")
+    return row[0] if row else 0
+
 def admin_only(handler):
     async def wrapper(message: types.Message, *args, **kwargs):
         if message.from_user.id in ADMINS:
@@ -277,28 +299,6 @@ async def back_to_stages_handler(callback: types.CallbackQuery):
         parse_mode="HTML"
     )
     await callback.answer()
-
-@asynccontextmanager
-async def get_db():
-    async with aiosqlite.connect(DB_PATH) as db:
-        await db.execute(CREATE_USERS)
-        await db.commit()
-        yield db
-
-async def add_user(uid: int):
-    async with get_db() as db:
-        await db.execute("INSERT OR IGNORE INTO users(user_id) VALUES (?)", (uid,))
-        await db.commit()
-
-async def get_all_user_ids() -> list[int]:
-    async with get_db() as db:
-        rows = await db.execute_fetchall("SELECT user_id FROM users")
-    return [r[0] for r in rows]
-
-async def users_count() -> int:
-    async with get_db() as db:
-        row = await db.execute_fetchone("SELECT COUNT(*) FROM users")
-    return row[0] if row else 0
 
 async def main():
     try:

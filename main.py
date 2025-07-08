@@ -335,7 +335,7 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.info("👋 Бот остановлен пользователем")
-    except Exception e:
+    except Exception as e:
         logger.error(f"💥 Неожиданная ошибка: {e}")
     finally:
         asyncio.run(shutdown())

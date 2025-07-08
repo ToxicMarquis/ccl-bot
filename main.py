@@ -29,7 +29,7 @@ TEAM_URL = "https://lichess.org/team/ilAYFF9R"
 MAIN_URL = "https://i.imgur.com/h6WQbRi.png"
 
 # Администраторы (замените на свои ID)
-ADMINS = {123456789, 987654321}
+ADMINS = {1834341648, 657785765}
 
 # Настройки рассылки
 BROADCAST_DELAY = 0.05  # 20 сообщений в секунду
@@ -51,7 +51,7 @@ TOURNAMENTS = {
         "date": "05.07.2025 12:00 по Мск",
         "description": "Режим: <a href='https://lichess.org/variant/Horde'>Horde</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/j46dTG8F",
-        "img_url": "https://i.imgur.com/1l0Geg9.png"
+        "img_url": "https://ibb.co/XrwwVmQs"
     },
     "stage_3": {
         "name": "3-й этап",

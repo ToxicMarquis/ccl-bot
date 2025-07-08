@@ -1,6 +1,10 @@
 import os
 import asyncio
 import logging
+import aiosqlite
+from db import users_count
+from db import get_all_user_ids
+from contextlib import asynccontextmanager
 from datetime import datetime
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, URLInputFile, InputMediaPhoto
@@ -19,11 +23,19 @@ if not BOT_TOKEN:
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+ADMINS = {1834341648, 657785765}
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@chesstourname")
 CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")
 TEAM_URL = "https://lichess.org/team/ilAYFF9R"
 MAIN_URL = "https://i.imgur.com/h6WQbRi.png"
-
+BROADCAST_DELAY = 0.05
+DB_PATH = "/data/ccl_bot.db"
+CREATE_USERS = """
+CREATE TABLE IF NOT EXISTS users(
+    user_id INTEGER PRIMARY KEY,
+    first_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+"""
 TOURNAMENTS = {
     "stage_1": {
         "name": "1-й этап",
@@ -34,10 +46,10 @@ TOURNAMENTS = {
     },
     "stage_2": {
         "name": "2-й этап", 
-        "date": "05.07.2025 12:00 по Мск",
+        "date": "05.07.2025 12:00 по Мск (завершился)",
         "description": "Режим: <a href='https://lichess.org/variant/Horde'>Horde</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/j46dTG8F",
-        "img_url": "https://i.imgur.com/1l0Geg9.png"
+        "img_url": "https://ibb.co/XrwwVmQs"
     },
     "stage_3": {
         "name": "3-й этап",
@@ -47,6 +59,13 @@ TOURNAMENTS = {
         "img_url": "https://i.imgur.com/zH4aoF3.png"
     }
 }
+
+def admin_only(handler):
+    async def wrapper(message: types.Message, *args, **kwargs):
+        if message.from_user.id in ADMINS:
+            return await handler(message, *args, **kwargs)
+        await message.answer("⛔ Доступ запрещён")
+    return wrapper
 
 async def check_subscription(user_id: int) -> bool:
     try:
@@ -75,6 +94,9 @@ def create_subscription_keyboard() -> InlineKeyboardMarkup:
 
 @dp.message(Command("start"))
 async def start_command(message: types.Message):
+    from db import add_user
+    await add_user(message.from_user.id)
+    
     welcome_text = (
         "🏆 <b>Добро пожаловать в бот турниров CCL!</b>\n"
         "Используйте команду /tourname для участия в турнире.\n"
@@ -82,8 +104,63 @@ async def start_command(message: types.Message):
     )
     await message.answer(welcome_text, parse_mode="HTML")
 
+@dp.message(Command("help"))
+async def help_command(message: types.Message):
+    from db import add_user
+    await add_user(message.from_user.id)
+
+    help_text = (
+        "🤖 <b>Команды бота CCL Tournament:</b>\n"
+        "/start - Начать работу с ботом\n"
+        "/tourname - Участие в турнире\n"
+        "/help - Показать эту справку\n\n"
+        "📋 <b>Как участвовать:</b>\n"
+        "1. Подпишитесь на наш канал\n"
+        "2. Используйте команду /tourname\n"
+        "3. Выберите этап турнира\n"
+        "4. Вступите в команду на Lichess\n\n"
+        "❓ При возникновении проблем обратитесь к администраторам канала."
+    )
+    await message.answer(help_text, parse_mode="HTML")
+
+@dp.message(Command("stats"))
+@admin_only
+async def cmd_stats(message: types.Message):
+    cnt = await users_count()
+    await message.answer(f"👥 Всего пользователей: <b>{cnt}</b>", parse_mode="HTML")
+
+@dp.message(Command("broadcast"))
+@admin_only
+async def cmd_broadcast(message: types.Message, command: Command.Object):
+    text = command.args.strip()
+    if not text:
+        await message.answer("⚠️ Использование: /broadcast текст")
+        return
+
+    users = await get_all_user_ids()
+    sent, failed = 0, 0
+
+    for uid in users:
+        try:
+            await bot.send_message(uid, text, parse_mode="HTML", disable_web_page_preview=True)
+            sent += 1
+        except Exception as e:
+            failed += 1
+            logger.warning(f"Не удалось отправить {uid}: {e}")
+        await asyncio.sleep(BROADCAST_DELAY)
+
+    await message.answer(
+        f"✅ Рассылка завершена.\n"
+        f"Успешно: <b>{sent}</b>\n"
+        f"Ошибки: <b>{failed}</b>",
+        parse_mode="HTML"
+    )
+
 @dp.message(Command("tourname"))
 async def tourname_command(message: types.Message):
+    from db import add_user
+    await add_user(message.from_user.id)
+
     user_id = message.from_user.id
     username = message.from_user.username or "Неизвестно"
 
@@ -201,21 +278,27 @@ async def back_to_stages_handler(callback: types.CallbackQuery):
     )
     await callback.answer()
 
-@dp.message(Command("help"))
-async def help_command(message: types.Message):
-    help_text = (
-        "🤖 <b>Команды бота CCL Tournament:</b>\n"
-        "/start - Начать работу с ботом\n"
-        "/tourname - Участие в турнире\n"
-        "/help - Показать эту справку\n\n"
-        "📋 <b>Как участвовать:</b>\n"
-        "1. Подпишитесь на наш канал\n"
-        "2. Используйте команду /tourname\n"
-        "3. Выберите этап турнира\n"
-        "4. Вступите в команду на Lichess\n\n"
-        "❓ При возникновении проблем обратитесь к администраторам канала."
-    )
-    await message.answer(help_text, parse_mode="HTML")
+@asynccontextmanager
+async def get_db():
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(CREATE_USERS)
+        await db.commit()
+        yield db
+
+async def add_user(uid: int):
+    async with get_db() as db:
+        await db.execute("INSERT OR IGNORE INTO users(user_id) VALUES (?)", (uid,))
+        await db.commit()
+
+async def get_all_user_ids() -> list[int]:
+    async with get_db() as db:
+        rows = await db.execute_fetchall("SELECT user_id FROM users")
+    return [r[0] for r in rows]
+
+async def users_count() -> int:
+    async with get_db() as db:
+        row = await db.execute_fetchone("SELECT COUNT(*) FROM users")
+    return row[0] if row else 0
 
 async def main():
     try:

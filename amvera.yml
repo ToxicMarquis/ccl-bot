@@ -5,4 +5,5 @@ meta:
     version: 3.11
 
 run:
+  persistenceMount: /data
   scriptName: main.py

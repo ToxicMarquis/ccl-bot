@@ -7,6 +7,7 @@ from datetime import datetime
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, URLInputFile, InputMediaPhoto
 from aiogram.filters import Command
+from functools import wraps
 
 logging.basicConfig(
     level=logging.INFO,
@@ -14,7 +15,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Конфигурация бота
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
     raise ValueError("BOT_TOKEN не найден в переменных окружения!")
@@ -22,22 +22,13 @@ if not BOT_TOKEN:
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Настройки каналов и команд
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@chesstourname")
 CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/chesstourname")
 TEAM_URL = "https://lichess.org/team/ilAYFF9R"
 MAIN_URL = "https://i.imgur.com/h6WQbRi.png"
-
-# Администраторы (замените на свои ID)
 ADMINS = {1834341648, 657785765}
-
-# Настройки рассылки
-BROADCAST_DELAY = 0.05  # 20 сообщений в секунду
-
-# База данных
+BROADCAST_DELAY = 0.05
 DB_PATH = "/data/ccl_bot.db"
-
-# Данные турниров
 TOURNAMENTS = {
     "stage_1": {
         "name": "1-й этап",
@@ -61,8 +52,6 @@ TOURNAMENTS = {
         "img_url": "https://i.imgur.com/zH4aoF3.png"
     }
 }
-
-# ================== ФУНКЦИИ БАЗЫ ДАННЫХ ==================
 
 CREATE_USERS = """
 CREATE TABLE IF NOT EXISTS users(
@@ -95,16 +84,34 @@ async def users_count() -> int:
         row = await cursor.fetchone()
     return row[0] if row else 0
 
-# ================== ДЕКОРАТОРЫ ==================
-
 def admin_only(handler):
-    async def wrapper(message: types.Message, *args, **kwargs):
-        if message.from_user.id in ADMINS:
-            return await handler(message, *args, **kwargs)
-        await message.answer("⛔ Доступ запрещён")
-    return wrapper
+    @wraps(handler)
+    async def wrapper(*args, **kwargs):
+        # Находим объект message или callback из args/kwargs
+        message = None
+        for arg in args:
+            if isinstance(arg, types.Message):
+                message = arg
+                break
+        if not message:
+            message = kwargs.get("message")
+        if not message:
+            callback = next((a for a in args if isinstance(a, types.CallbackQuery)), None)
+            if callback:
+                message = callback.message
 
-# ================== ОСНОВНЫЕ ФУНКЦИИ ==================
+        user_id = None
+        if message:
+            user_id = message.from_user.id
+        elif "event_from_user" in kwargs:
+            user_id = kwargs["event_from_user"].id
+
+        if user_id in ADMINS:
+            return await handler(*args, **kwargs)
+        if message:
+            await message.answer("⛔ Доступ запрещён")
+        return
+    return wrapper
 
 async def check_subscription(user_id: int) -> bool:
     try:
@@ -130,8 +137,6 @@ def create_subscription_keyboard() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="✅ Я подписался", callback_data="check_subscription")]
     ])
     return keyboard
-
-# ================== ОБРАБОТЧИКИ КОМАНД ==================
 
 @dp.message(Command("start"))
 async def start_command(message: types.Message):
@@ -227,8 +232,6 @@ async def broadcast_command(message: types.Message):
         parse_mode="HTML"
     )
 
-# ================== ОБРАБОТЧИКИ CALLBACK ==================
-
 @dp.callback_query(F.data == "check_subscription")
 async def check_subscription_handler(callback: types.CallbackQuery):
     user_id = callback.from_user.id
@@ -312,8 +315,6 @@ async def back_to_stages_handler(callback: types.CallbackQuery):
         parse_mode="HTML"
     )
     await callback.answer()
-
-# ================== ГЛАВНАЯ ФУНКЦИЯ ==================
 
 async def main():
     try:

@@ -39,7 +39,7 @@ TOURNAMENTS = {
     },
     "stage_2": {
         "name": "2-й этап", 
-        "date": "05.07.2025 12:00 по Мск",
+        "date": "05.07.2025 12:00 по Мск (завершился)",
         "description": "Режим: <a href='https://lichess.org/variant/Horde'>Horde</a>\nДлительность: 90 минут\nКонтроль: 5+0",
         "stage_url": "https://lichess.org/tournament/j46dTG8F",
         "img_url": "https://ibb.co/XrwwVmQs"
